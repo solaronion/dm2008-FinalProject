@@ -59,13 +59,16 @@ class attackRing {
     this.size = vol * 5000 + attackSize;
 
     if (this.size > 50)
-    { colorIndex = 0;
+    { colorIndex = 1;
     }
-    else if (this.size > 100)
+    if (this.size > 100)
     {
-    colorIndex = 1;
+    colorIndex = 2;
     }
-    else colorIndex = 2;
+    if (this.size <= 50)
+	{
+	colorIndex = 0;
+	} 
    
     fill(attackColor[colorIndex])
     noStroke();
