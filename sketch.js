@@ -18,12 +18,13 @@ function preload(){
 
 function setup() {
   imageMode(CENTER);
-  createCanvas(500, 500);
+  createCanvas(650, 650);
   background(102, 129, 124);
   fill(255);
   ring = new attackRing(attackSize, width/2, height/2);
   mic = new p5.AudioIn();
   mic.start();
+  player = new Sprite(ring.x, ring.y, 50, STATIC);
 }
 
 function draw() {
@@ -45,6 +46,7 @@ function draw() {
 
   ring.show();
   console.log(ring.size);
+  player.rotateTowards(mouse, 0.1, 0);
 }
 
 class attackRing {
@@ -58,14 +60,14 @@ class attackRing {
    
     this.size = vol * 5000 + attackSize;
 
-    if (this.size > 50)
+    if (this.size > 80)
     { colorIndex = 1;
     }
-    if (this.size > 100)
+    if (this.size > 150)
     {
     colorIndex = 2;
     }
-    if (this.size <= 50)
+    if (this.size <= 80)
 	{
 	colorIndex = 0;
 	} 
