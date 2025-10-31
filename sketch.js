@@ -1,29 +1,79 @@
-createCanvas();
-world.gravity.y = 10;
+/* ----------------- Globals ----------------- */
+let player;
+let mic;
+let ring;
+let attackSize = 20;
+let vol;
+let attackColor = ["#0059ffff","#ffed24ff","#ff0e0eff"];
+let colorIndex = 0
 
-let ball = new Sprite();
-ball.x = halfWidth - 200;
-ball.y = halfHeight - 200;
-ball.diameter = 50;
 
-let groundA = new Sprite();
-groundA.x = halfWidth - 120;
-groundA.width = 200;
-groundA.rotation = 20;
-groundA.physics = STATIC;
+const SPAWN_RATE = 90;
+/* ----------------- Assets ----------------- */
+let PlayerImg;
 
-let groundB = new Sprite();
-groundB.x = halfWidth + 120;
-groundB.width = 200;
-groundB.rotation = -20;
-groundB.physics = STATIC;
-
-function update() {
-	background('skyblue');
-
-	textAlign(CENTER);
-	textSize(20);
-	text('click to jump!', halfWidth, halfHeight - 100);
-
-	if (mouse.presses()) ball.vel.y = -5;
+function preload(){
+  PlayerImg = loadImage("Assets/PlayerImg.png");
 }
+
+function setup() {
+  imageMode(CENTER);
+  createCanvas(500, 500);
+  background(102, 129, 124);
+  fill(255);
+  ring = new attackRing(attackSize, width/2, height/2);
+  mic = new p5.AudioIn();
+  mic.start();
+}
+
+function draw() {
+  background(102, 129, 124); 
+  vol = mic.getLevel();
+
+ if (keyIsDown(68)) { 
+    ring.x += 4;
+  }
+  if (keyIsDown(65)) { 
+    ring.x -= 4;
+  }
+  if (keyIsDown(87)) { 
+    ring.y -= 4;
+  }
+  if (keyIsDown(83)) { 
+    ring.y += 4;
+  }
+
+  ring.show();
+  console.log(ring.size);
+}
+
+class attackRing {
+  constructor(size, x, y) {
+    this.size = size;
+    this.x = x;
+    this.y = y;
+  }
+
+  show() {
+   
+    this.size = vol * 5000 + attackSize;
+
+    if (this.size > 50)
+    { colorIndex = 0;
+    }
+    else if (this.size > 100)
+    {
+    colorIndex = 1;
+    }
+    else colorIndex = 2;
+   
+    fill(attackColor[colorIndex])
+    noStroke();
+    ellipse(this.x, this.y, this.size, this.size);
+    PlayerImg.resize(50, 0);
+    image(PlayerImg, this.x, this.y);      
+  }
+}
+
+// add ui slider to adjust sensitivity (is at 5000 rn)
+
