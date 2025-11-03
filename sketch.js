@@ -6,8 +6,15 @@ let attackSize = 20;
 let vol;
 let attackColor = ["#0059ffff","#ffed24ff","#ff0e0eff"];
 let colorIndex = 0
-let gameStarted = false;
 
+let enemies = [];
+let spawnTime = 120;
+let enemyColor = [];
+let Timer = 0
+
+
+let gameStarted = false;
+let gameOver = false;
 
 /* ----------------- Assets ----------------- */
 
@@ -18,7 +25,10 @@ function preload(){
   RedImg = loadImage("Assets/RedEnemyImg.png");
   BlueImg = loadImage("Assets/BlueEnemyImg.png");
   YellowImg = loadImage("Assets/YellowEnemyImg.png");
+
+  enemyColor = [RedImg, BlueImg, YellowImg];
 }
+
 
 /* ----------------- Setup & Draw ----------------- */
 function setup() {
@@ -33,13 +43,20 @@ function setup() {
 function draw() {
   background(102, 129, 124);
   
+
+  
   if (!gameStarted) {
     StartScreen();
     return;
   }
   
+  if (gameOver) {
+    DeathScreen();
+    return;
+  }
+
   vol = mic.getLevel();
- if (keyIsDown(68)) { 
+  if (keyIsDown(68)) { 
     ring.x += 4;
   }
   if (keyIsDown(65)) { 
@@ -55,15 +72,37 @@ function draw() {
   ring.x = constrain(ring.x, 0, width);
   ring.y = constrain(ring.y, 0, height);
 
-  ring.show();
   image(FonImg, width/2, height/2, 50, 50,);
+  ring.show();
+
+  /* ----------------- Enemy Spawn ----------------- */
+  Timer++;
+  if (Timer > spawnTime) {
+    let randomEnemy = random(enemyColor); 
+    enemies.push(new Enemy(randomEnemy));
+    Timer = 0;
+
+  }
+
+  for (let i = 0; i < enemies.length; i++) {
+    enemies[i].show();
+  }
+
+
+  /* ----------------- Collition with Center Fon ----------------- */
+  let d = dist(ring.x, ring.y, width/2, height/2);
+  if (d < ring.size/2){
+    gameOver = true;
+  }
+ 
 
   console.log(ring.size);
   //player.rotateTowards(mouse, 0.1, 0); (its not working :())
 }
 
 
-/* ----------------- StartScreen ----------------- */
+
+/* ----------------- Screens ----------------- */
 function StartScreen(){
   fill(255);
   textAlign(CENTER, CENTER); 
@@ -71,20 +110,49 @@ function StartScreen(){
   text("SPACE key to Start", width/2, height/2);
   textSize(20);
   text("Hiss the cats away! WASD to move", width/2, height/2 + 50);
+
+ 
+  image(PlayerImg, width/2, height/3 + 50, 50, 50);  
+}
+
+function DeathScreen(){
+  fill(255);
+  textAlign(CENTER, CENTER); 
+  textSize(48);
+  text("You Died", width/2, height/2);
+  textSize(20);
+  text("R to restart", width/2, height/2 + 50);
   
  
   image(PlayerImg, width/2, height/3 + 50, 50, 50);  
 }
 
 
+/* ----------------- Keys ----------------- */
 function keyPressed() {
-  if (keyCode === 32 && !gameStarted) {
-    gameStarted = true
-    ring = new attackRing(attackSize, width/2, height/2);
-    mic = new p5.AudioIn();
-    mic.start();
+  if (keyCode === 32){}
+    if (!gameStarted){
+      gameStarted = true
+      ring = new attackRing(attackSize, width/2 , height/2 - 150);
+      mic = new p5.AudioIn();
+      mic.start();
+    }
+    else if(gameOver){
+      gameOver = false;
+      gameStarted = true;
+      ring = new attackRing(attackSize, width/2 , height/2 - 150);
+      mic = new p5.AudioIn();
+      mic.start();
+
+    }
   }
-}
+  
+
+  
+
+
+
+
 
 /* ----------------- Classes ----------------- */
 class attackRing {
@@ -120,4 +188,21 @@ class attackRing {
      
   }
 }
+
+class Enemy {
+  constructor(img) {
+    this.img = img;
+    this.size = 50;
+    this.x = random(width);
+    this.y = random(height);
+
+  }
+
+  show() {
+    image(this.img, this.x, this.y, this.size, this.size);
+  }
+}
+
+
+
 // add ui slider to adjust sensitivity (is at 5000 rn)
