@@ -1,5 +1,7 @@
 /* ----------------- Globals ----------------- */
 let player;
+const playerSize = 50;
+const playerRadius = playerSize * 0.2;
 let mic;
 let ring;
 let attackSize = 20;
@@ -21,7 +23,9 @@ let gameOver = false;
 
 function preload(){
   PlayerImg = loadImage("Assets/PlayerImg.png");
+  PlayerImg.resize(50, 0);
   FonImg = loadImage("Assets/FonImg.png");
+  FonImg.resize(50, 0);
   RedImg = loadImage("Assets/RedEnemyImg.png");
   BlueImg = loadImage("Assets/BlueEnemyImg.png");
   YellowImg = loadImage("Assets/YellowEnemyImg.png");
@@ -72,7 +76,7 @@ function draw() {
   ring.x = constrain(ring.x, 0, width);
   ring.y = constrain(ring.y, 0, height);
 
-  image(FonImg, width/2, height/2, 50, 50,);
+  image(FonImg, width/2, height/2);
   ring.show();
 
   /* ----------------- Enemy Spawn ----------------- */
@@ -90,6 +94,9 @@ function draw() {
     if (enemies[i].reachedFon(25)) { 
     gameOver = true;
     }
+    if (enemies[i].hitsPlayer(ring.x, ring.y, playerRadius)) {
+    gameOver = true;
+    }
   }
 
 
@@ -101,7 +108,6 @@ function draw() {
  
 
   console.log(ring.size);
-  //player.rotateTowards(mouse, 0.1, 0); (its not working :())
 }
 
 
@@ -134,22 +140,30 @@ function DeathScreen(){
 
 /* ----------------- Keys ----------------- */
 function keyPressed() {
-  if (keyCode === 32){}
-    if (!gameStarted){
-      gameStarted = true
-      ring = new attackRing(attackSize, width/2 , height/2 - 150);
-      mic = new p5.AudioIn();
-      mic.start();
-    }
-    else if(gameOver){
-      gameOver = false;
-      gameStarted = true;
-      ring = new attackRing(attackSize, width/2 , height/2 - 150);
-      mic = new p5.AudioIn();
-      mic.start();
-
-    }
+  if (!gameStarted && keyCode === 32) {
+    startNewRun();
+    return;
   }
+
+  if (gameOver && (key === 'r' || key === 'R')) {
+    startNewRun();
+    return;
+  }
+}
+
+function startNewRun() {
+  if (mic && mic.stop) mic.stop();
+  gameOver = false;
+  gameStarted = true;
+  enemies = [];     
+  Timer = 0;       
+  colorIndex = 0;
+
+  ring = new attackRing(attackSize, width/2, height/2 - 150);
+  mic = new p5.AudioIn();
+  mic.start();
+}
+
   
 
   
@@ -185,9 +199,6 @@ class attackRing {
     fill(attackColor[colorIndex])
     noStroke();
     ellipse(this.x, this.y, this.size, this.size);
-    
-   
-    PlayerImg.resize(50, 0);
     image(PlayerImg, this.x, this.y);    
      
   }
@@ -227,8 +238,12 @@ class Enemy {
   reachedFon(killDistance = 10){
     return dist(this.x, this.y, width/2, height/2) <= killDistance;
   }
-}
 
+  hitsPlayer(px, py, pr) {
+    const enemyRadius = this.size * 0.5; 
+    return dist(this.x, this.y, px, py) <= (enemyRadius + pr);
+}
+}
 
 
 // add ui slider to adjust sensitivity (is at 5000 rn)
