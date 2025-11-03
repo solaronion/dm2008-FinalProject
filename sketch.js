@@ -85,7 +85,11 @@ function draw() {
   }
 
   for (let i = 0; i < enemies.length; i++) {
+    enemies[i].update();
     enemies[i].show();
+    if (enemies[i].reachedFon(25)) { 
+    gameOver = true;
+    }
   }
 
 
@@ -193,13 +197,35 @@ class Enemy {
   constructor(img) {
     this.img = img;
     this.size = 50;
-    this.x = random(width);
-    this.y = random(height);
+
+    const angle = random(360);
+    const spawnRadius = 430;
+
+    this.x = (width/2) + cos(angle)*spawnRadius
+    this.y = (height/2) + sin(angle)*spawnRadius
+    this.speed = 30;
+
+    const distFromCenterX = (width/2) - this.x;
+    const distFromCenterY = (height/2) - this.y;
+    const direction = createVector(distFromCenterX, distFromCenterY);
+    direction.normalize();
+    this.xVelocity = direction.x;
+    this.yVelocity = direction.y;
 
   }
 
+  update(){
+    this.x += this.xVelocity * this.speed * deltaTime/1000;
+    this.y += this.yVelocity * this.speed * deltaTime/1000;
+  }
+
+
   show() {
     image(this.img, this.x, this.y, this.size, this.size);
+  }
+
+  reachedFon(killDistance = 10){
+    return dist(this.x, this.y, width/2, height/2) <= killDistance;
   }
 }
 
