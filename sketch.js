@@ -30,7 +30,7 @@ function preload(){
   BlueImg = loadImage("Assets/BlueEnemyImg.png");
   YellowImg = loadImage("Assets/YellowEnemyImg.png");
 
-  enemyColor = [RedImg, BlueImg, YellowImg];
+  enemyColor = [BlueImg, YellowImg,RedImg];
 }
 
 
@@ -88,19 +88,35 @@ function draw() {
 
   }
 
-  for (let i = 0; i < enemies.length; i++) {
-    enemies[i].update();
-    enemies[i].show();
-    if (enemies[i].reachedFon(25)) { 
-    gameOver = true;
+  for (let i = enemies.length - 1; i >= 0; i--) {
+    let enemy = enemies[i];
+
+    enemy.update();
+    enemy.show();
+
+    let playerEnemyD = dist(enemy.x, enemy.y, ring.x, ring.y);
+    let collide = playerEnemyD < (ring.size / 2 + enemy.size / 2);
+    let currentEnemyColor = enemyColor[colorIndex];
+
+    if (collide && currentEnemyColor == enemy.img){
+      enemy.hit = true;
     }
+
+    if (enemy.hit && enemy.offScreen()){
+      enemies.splice(i, 1);
+      continue; // skip rest of this loop
+    }  
+      
+      if (enemies[i].reachedFon(25)) { 
+      gameOver = true;
+    }
+
     if (enemies[i].hitsPlayer(ring.x, ring.y, playerRadius)) {
-    gameOver = true;
-    }
+      gameOver = true;
+    }  
   }
 
-
-  /* ----------------- Collition with Center Fon ----------------- */
+  /* ----------------- Collision with Center Fon ----------------- */
   let d = dist(ring.x, ring.y, width/2, height/2);
   if (d < ring.size/2){
     gameOver = true;
@@ -223,11 +239,24 @@ class Enemy {
     this.xVelocity = direction.x;
     this.yVelocity = direction.y;
 
+    this.hit = false;
+
+     
+  
   }
 
+
+  
+
   update(){
-    this.x += this.xVelocity * this.speed * deltaTime/1000;
-    this.y += this.yVelocity * this.speed * deltaTime/1000;
+    if (this.hit){
+      this.x -= this.xVelocity * this.speed * deltaTime / 10;
+      this.y -= this.yVelocity * this.speed * deltaTime / 10;
+    }
+    else{
+      this.x += this.xVelocity * this.speed * deltaTime/1000;
+      this.y += this.yVelocity * this.speed * deltaTime/1000;
+    }
   }
 
 
@@ -243,6 +272,15 @@ class Enemy {
     const enemyRadius = this.size * 0.5; 
     return dist(this.x, this.y, px, py) <= (enemyRadius + pr);
 }
+ 
+  offScreen (){
+  let off = false;
+  if (this.x < -this.size) off = true;
+  if (this.x > width + this.size) off = true;
+  if (this.y < -this.size) off = true;
+  if (this.y > height + this.size) off = true;
+  return off;
+  }
 }
 
 
