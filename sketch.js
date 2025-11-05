@@ -17,6 +17,7 @@ let Timer = 0
 
 let gameStarted = false;
 let gameOver = false;
+let isPaused = true;
 
 /* ----------------- Assets ----------------- */
 
@@ -32,6 +33,8 @@ function preload(){
 
   enemyColor = [BlueImg, YellowImg,RedImg];
 }
+
+/* ----------------- Sound ----------------- */
 
 
 /* ----------------- Setup & Draw ----------------- */
@@ -59,6 +62,7 @@ function draw() {
     return;
   }
 
+  if (!isPaused) {
   vol = mic.getLevel();
   if (keyIsDown(68)) { 
     ring.x += 4;
@@ -72,21 +76,23 @@ function draw() {
   if (keyIsDown(83)) { 
     ring.y += 4;
   }
-
   ring.x = constrain(ring.x, 0, width);
   ring.y = constrain(ring.y, 0, height);
+  }
 
   image(FonImg, width/2, height/2);
   ring.show();
 
   /* ----------------- Enemy Spawn ----------------- */
+  if (!isPaused){
   Timer++;
   if (Timer > spawnTime) {
     let randomEnemy = random(enemyColor); 
     enemies.push(new Enemy(randomEnemy));
     Timer = 0;
 
-  }
+    }
+
 
   for (let i = enemies.length - 1; i >= 0; i--) {
     let enemy = enemies[i];
@@ -116,10 +122,17 @@ function draw() {
     }  
   }
 
+
   /* ----------------- Collision with Center Fon ----------------- */
   let d = dist(ring.x, ring.y, width/2, height/2);
   if (d < ring.size/2){
     gameOver = true;
+  }
+} else {
+    for (let i = 0; i < enemies.length; i++) {
+      enemies[i].show();
+    }
+    PauseScreen();
   }
  
 
@@ -153,9 +166,24 @@ function DeathScreen(){
   image(PlayerImg, width/2, height/3 + 50, 50, 50);  
 }
 
+function PauseScreen(){
+  noStroke();
+  fill(0, 150);
+  rect(0, 0, width, height);
+  fill(255);
+  textAlign(CENTER, CENTER); 
+  textSize(48);
+  text("Game Paused", width/2, height/2 - 20);
+  textSize(20);
+  text("Press ESC to Resume!", width/2, height/2 + 30);
+}
 
-/* ----------------- Keys ----------------- */
+/* ----------------- Keys and Game States ----------------- */
 function keyPressed() {
+  if (gameStarted && !gameOver && keyCode === ESCAPE) {
+    isPaused = !isPaused;
+    return;
+  }
   if (!gameStarted && keyCode === 32) {
     startNewRun();
     return;
@@ -169,6 +197,7 @@ function keyPressed() {
 
 function startNewRun() {
   if (mic && mic.stop) mic.stop();
+  isPaused = false;
   gameOver = false;
   gameStarted = true;
   enemies = [];     
@@ -179,11 +208,6 @@ function startNewRun() {
   mic = new p5.AudioIn();
   mic.start();
 }
-
-  
-
-  
-
 
 
 
