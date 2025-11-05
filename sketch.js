@@ -13,11 +13,15 @@ let enemies = [];
 let spawnTime = 120;
 let enemyColor = [];
 let Timer = 0
-
+let scoreCount = 0;
+let winScore = 5;
 
 let gameStarted = false;
 let gameOver = false;
 let isPaused = true;
+
+let sensitivitySlider;
+let micSensitivity = 5000;
 
 /* ----------------- Assets ----------------- */
 
@@ -44,6 +48,12 @@ function setup() {
   createCanvas(650, 650);
   background(102, 129, 124);
   fill(255);
+  
+  sensitivitySlider = createSlider(1000, 10000, 5000);
+  sensitivitySlider.position(160, 590);
+  sensitivitySlider.addClass('slider');
+  sensitivitySlider.input(() =>micSensitivity = sensitivitySlider.value());
+  sensitivitySlider.hide();
  
 }
 
@@ -57,8 +67,13 @@ function draw() {
     return;
   }
   
-  if (gameOver) {
+  if (gameOver && scoreCount < winScore) {
     DeathScreen();
+    return;
+  }
+
+  if (gameOver && scoreCount >= winScore) {
+    WinScreen();
     return;
   }
 
@@ -106,6 +121,7 @@ function draw() {
 
     if (collide && currentEnemyColor == enemy.img){
       enemy.hit = true;
+      
     }
 
     if (enemy.hit && enemy.offScreen()){
@@ -128,6 +144,8 @@ function draw() {
   if (d < ring.size/2){
     gameOver = true;
   }
+
+  score();
 } else {
     for (let i = 0; i < enemies.length; i++) {
       enemies[i].show();
@@ -150,6 +168,9 @@ function StartScreen(){
   textSize(20);
   text("Hiss the cats away! WASD to move", width/2, height/2 + 50);
 
+  showSensitivitySlider();
+
+  
  
   image(PlayerImg, width/2, height/3 + 50, 50, 50);  
 }
@@ -161,8 +182,24 @@ function DeathScreen(){
   text("You Died", width/2, height/2);
   textSize(20);
   text("R to restart", width/2, height/2 + 50);
-  
+  endScore();
+
+  showSensitivitySlider();
  
+  image(PlayerImg, width/2, height/3 + 50, 50, 50);  
+}
+
+function WinScreen(){
+  fill(255);
+  textAlign(CENTER, CENTER); 
+  textSize(48);
+  text("Fon Loves You! :D", width/2, height/2);
+  textSize(20);
+  text("R to restart", width/2, height/2 + 50);
+  endScore();
+
+  showSensitivitySlider();
+
   image(PlayerImg, width/2, height/3 + 50, 50, 50);  
 }
 
@@ -176,12 +213,20 @@ function PauseScreen(){
   text("Game Paused", width/2, height/2 - 20);
   textSize(20);
   text("Press ESC to Resume!", width/2, height/2 + 30);
+
+
 }
 
-/* ----------------- Keys and Game States ----------------- */
+/* ----------------- Keys and Game Functions ----------------- */
 function keyPressed() {
   if (gameStarted && !gameOver && keyCode === ESCAPE) {
     isPaused = !isPaused;
+    if (isPaused) {
+      showSensitivitySlider();
+    }
+    else {
+      hideSensitivitySlider();   
+    }
     return;
   }
   if (!gameStarted && keyCode === 32) {
@@ -203,13 +248,37 @@ function startNewRun() {
   enemies = [];     
   Timer = 0;       
   colorIndex = 0;
+  scoreCount = 0;
+  hideSensitivitySlider();
 
   ring = new attackRing(attackSize, width/2, height/2 - 150);
   mic = new p5.AudioIn();
   mic.start();
 }
 
+function score(){ 
+  fill(255); 
+  textAlign(CENTER); 
+  textSize(20); 
+  text("Cats chased off: " + scoreCount, 100, 30);
+}
 
+function endScore(){
+  fill(255); 
+  textAlign(CENTER); 
+  textSize(20); 
+  text("Cats chased off: " + scoreCount, width/2, height/2 + 150);
+}
+
+function showSensitivitySlider(){
+  textSize(12);
+  text("Microphone Sensitivity", 90, 600);
+  sensitivitySlider.show();
+}
+
+function hideSensitivitySlider(){
+  sensitivitySlider.hide();
+} 
 
 
 /* ----------------- Classes ----------------- */
@@ -221,8 +290,7 @@ class attackRing {
   }
 
   show() {
-   
-    this.size = vol * 5000 + attackSize;
+    this.size = vol * micSensitivity + attackSize;
 
     if (this.size > 80)
     { colorIndex = 1;
@@ -264,6 +332,7 @@ class Enemy {
     this.yVelocity = direction.y;
 
     this.hit = false;
+    this.alreadyHit = false;
 
      
   
@@ -276,6 +345,10 @@ class Enemy {
     if (this.hit){
       this.x -= this.xVelocity * this.speed * deltaTime / 10;
       this.y -= this.yVelocity * this.speed * deltaTime / 10;
+      if (!this.alreadyHit){
+      scoreCount += 1;
+      }
+      this.alreadyHit = true;
     }
     else{
       this.x += this.xVelocity * this.speed * deltaTime/1000;
