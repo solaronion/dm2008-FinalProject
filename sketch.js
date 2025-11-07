@@ -17,7 +17,7 @@ let scoreCount = 0;
 let winScore = 5;
 
 var seconds = 0;
-let stopTime = 40;
+let stopTime = 4;
 let timeLeft;
 
 let gameStarted = false;
@@ -76,10 +76,16 @@ function draw() {
     return;
   }
 
-  if (gameOver && scoreCount >= winScore || timeLeft == 0) {
+  if (gameOver && scoreCount >= winScore) {
     WinScreen();
     return;
   }
+
+  if ( timeLeft == 0) {
+    FinishEatingScreen();
+    return;
+  }
+
 
   if (!isPaused) {
   vol = mic.getLevel();
@@ -135,7 +141,7 @@ function draw() {
       continue; // skip rest of this loop
     }  
       
-      if (enemies[i].reachedFon(25)) { 
+    if (enemies[i].reachedFon(25)) { 
       gameOver = true;
     }
 
@@ -206,8 +212,21 @@ function WinScreen(){
 
   showSensitivitySlider();
 
-  image(PlayerImg, width/2, height/3 + 50, 50, 50);  
+  image(PlayerImg, width/2 -30, height/3 + 50, 50, 50); 
+  image(FonImg, width/2 + 30, height/3 + 50, 50);  
 }
+
+function FinishEatingScreen(){
+  fill(255);
+  textAlign(CENTER, CENTER); 
+  textSize(18);
+  text("Fon finished eating in peace, she accepted your confession! :D", width/2, height/2); 
+
+  image(PlayerImg, width/2 -30, height/3 + 50, 50, 50); 
+  image(FonImg, width/2 + 30, height/3 + 50, 50); 
+}
+
+
 
 function PauseScreen(){
   noStroke();
