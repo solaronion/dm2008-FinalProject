@@ -16,6 +16,10 @@ let Timer = 0
 let scoreCount = 0;
 let winScore = 5;
 
+var seconds = 0;
+let stopTime = 40;
+let timeLeft;
+
 let gameStarted = false;
 let gameOver = false;
 let isPaused = true;
@@ -72,7 +76,7 @@ function draw() {
     return;
   }
 
-  if (gameOver && scoreCount >= winScore) {
+  if (gameOver && scoreCount >= winScore || timeLeft == 0) {
     WinScreen();
     return;
   }
@@ -101,6 +105,8 @@ function draw() {
   /* ----------------- Enemy Spawn ----------------- */
   if (!isPaused){
   Timer++;
+  seconds = floor(millis()/1000)
+  timeLeft = stopTime - seconds
   if (Timer > spawnTime) {
     let randomEnemy = random(enemyColor); 
     enemies.push(new Enemy(randomEnemy));
@@ -261,7 +267,10 @@ function score(){
   textAlign(CENTER); 
   textSize(20); 
   text("Cats chased off: " + scoreCount, 100, 30);
+  text("Time left for Fon to finish eating: " + timeLeft , 440, 30)
 }
+
+
 
 function endScore(){
   fill(255); 
