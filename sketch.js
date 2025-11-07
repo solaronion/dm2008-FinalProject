@@ -86,6 +86,7 @@ function draw() {
   }
 
   if (timeLeft <= 0) {
+    gameOver = true;
     FinishEatingScreen();
     return;
   }
@@ -202,7 +203,7 @@ function DeathScreen(){
   fill(255);
   textAlign(CENTER, CENTER); 
   textSize(48);
-  text("You Died", width/2, height/2);
+  text("You Failed...", width/2, height/2);
   textSize(20);
   text("R to restart", width/2, height/2 + 50);
   endScore();
@@ -216,7 +217,7 @@ function WinScreen(){
   fill(255);
   textAlign(CENTER, CENTER); 
   textSize(48);
-  text("Fon Loves You! :D", width/2, height/2);
+  text("Fon is impressed! :D", width/2, height/2);
   textSize(20);
   text("R to restart", width/2, height/2 + 50);
   endScore();
@@ -231,8 +232,8 @@ function FinishEatingScreen(){
   fill(255);
   textAlign(CENTER, CENTER); 
   textSize(18);
-  text("Fon finished eating in peace, she accepted your confession! :D", width/2, height/2); 
-
+  text("Fon finished eating in peace, and she accepted your confession! :D", width/2, height/2); 
+  endScore();
   image(PlayerImg, width/2 -30, height/3 + 50, 50, 50); 
   image(FonImg, width/2 + 30, height/3 + 50, 50); 
 }
@@ -249,7 +250,8 @@ function PauseScreen(){
   text("Game Paused", width/2, height/2 - 20);
   textSize(20);
   text("Press ESC to Resume!", width/2, height/2 + 30);
-
+  textSize(12);
+  text("Microphone Sensitivity", 90, 600);
 
 }
 
