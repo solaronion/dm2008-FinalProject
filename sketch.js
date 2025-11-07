@@ -116,6 +116,7 @@ function draw() {
 
   /* ----------------- Enemy Spawn ----------------- */
   // compute time left based on when this run started (ignores paused time because runStartMillis is adjusted on resume)
+  // timer functionality is helped with github copilot 
   if (runStartMillis > 0) {
     const elapsedSeconds = floor((millis() - runStartMillis) / 1000);
     timeLeft = Math.max(stopTime - elapsedSeconds, 0);
@@ -345,6 +346,7 @@ class attackRing {
   show() {
     this.size = vol * micSensitivity + attackSize;
 
+    //lerp colour 
     if (this.size > 80)
     { colorIndex = 1;
     }
