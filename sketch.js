@@ -17,8 +17,12 @@ let scoreCount = 0;
 let winScore = 5;
 
 var seconds = 0;
-let stopTime = 4;
+let stopTime = 30;
 let timeLeft;
+
+
+let runStartMillis = 0;
+let pauseStartMillis = 0;
 
 let gameStarted = false;
 let gameOver = false;
@@ -81,10 +85,11 @@ function draw() {
     return;
   }
 
-  if ( timeLeft == 0) {
+  if (timeLeft <= 0) {
     FinishEatingScreen();
     return;
   }
+
 
 
   if (!isPaused) {
@@ -109,11 +114,17 @@ function draw() {
   ring.show();
 
   /* ----------------- Enemy Spawn ----------------- */
-  if (!isPaused){
-  Timer++;
-  seconds = floor(millis()/1000)
-  timeLeft = stopTime - seconds
-  if (Timer > spawnTime) {
+  // compute time left based on when this run started (ignores paused time because runStartMillis is adjusted on resume)
+  if (runStartMillis > 0) {
+    const elapsedSeconds = floor((millis() - runStartMillis) / 1000);
+    timeLeft = Math.max(stopTime - elapsedSeconds, 0);
+  } else {
+    timeLeft = stopTime;
+  }
+
+  if (!isPaused) {
+    Timer++;
+    if (Timer > spawnTime) {
     let randomEnemy = random(enemyColor); 
     enemies.push(new Enemy(randomEnemy));
     Timer = 0;
@@ -245,11 +256,20 @@ function PauseScreen(){
 /* ----------------- Keys and Game Functions ----------------- */
 function keyPressed() {
   if (gameStarted && !gameOver && keyCode === ESCAPE) {
-    isPaused = !isPaused;
-    if (isPaused) {
+    // toggle pause: when pausing record when it started; when resuming adjust runStartMillis
+    if (!isPaused) {
+      // going to pause
+      isPaused = true;
+      pauseStartMillis = millis();
       showSensitivitySlider();
-    }
-    else {
+    } else {
+      // resuming
+      isPaused = false;
+      if (pauseStartMillis) {
+        // shift runStartMillis forward by the paused duration so elapsed time excludes pause
+        runStartMillis += (millis() - pauseStartMillis);
+        pauseStartMillis = 0;
+      }
       hideSensitivitySlider();   
     }
     return;
@@ -268,6 +288,9 @@ function keyPressed() {
 function startNewRun() {
   if (mic && mic.stop) mic.stop();
   isPaused = false;
+  runStartMillis = millis();
+  pauseStartMillis = 0;
+  timeLeft = stopTime;
   gameOver = false;
   gameStarted = true;
   enemies = [];     
