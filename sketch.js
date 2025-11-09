@@ -31,19 +31,50 @@ let isPaused = true;
 let sensitivitySlider;
 let micSensitivity = 5000;
 
+let PlayerImg2;
+let BlueImg2;
+let YellowImg2; 
+let RedImg2;
+
+let playerFrames = [];
+let enemyFrames = [];
+
 /* ----------------- Assets ----------------- */
 
 
 function preload(){
-  PlayerImg = loadImage("Assets/PlayerImg.png");
-  PlayerImg.resize(50, 0);
+  PlayerImg = loadImage("Assets/PlayerImg1.png");
   FonImg = loadImage("Assets/FonImg.png");
-  FonImg.resize(50, 0);
-  RedImg = loadImage("Assets/RedEnemyImg.png");
-  BlueImg = loadImage("Assets/BlueEnemyImg.png");
-  YellowImg = loadImage("Assets/YellowEnemyImg.png");
+  RedImg = loadImage("Assets/RedEnemyImg1.png");
+  BlueImg = loadImage("Assets/BlueEnemyImg1.png");
+  YellowImg = loadImage("Assets/YellowEnemyImg1.png");
 
-  enemyColor = [BlueImg, YellowImg,RedImg];
+  PlayerImg2 = loadImage("Assets/PlayerImg2.png");
+  BlueImg2   = loadImage("Assets/BlueEnemyImg2.png");
+  YellowImg2 = loadImage("Assets/YellowEnemyImg2.png");
+  RedImg2    = loadImage("Assets/RedEnemyImg2.png");
+
+  PlayerImg.resize(50, 0);    
+  PlayerImg2.resize(50, 0);
+  FonImg.resize(50, 0);
+  BlueImg.resize(50, 0);     
+   BlueImg2.resize(50, 0);
+  YellowImg.resize(50, 0);    
+  YellowImg2.resize(50, 0);
+  RedImg.resize(50, 0);       
+  RedImg2.resize(50, 0);
+
+  //fonts
+  font = loadFont("Assets/Fonts/Mabook.ttf");
+
+
+  enemyColor = [BlueImg, YellowImg, RedImg];
+  playerFrames = [PlayerImg, PlayerImg2];
+  enemyAnimFrames = [
+    [BlueImg,   BlueImg2],
+    [YellowImg, YellowImg2],
+    [RedImg,    RedImg2]
+    ];
 }
 
 /* ----------------- Sound ----------------- */
@@ -56,7 +87,7 @@ function setup() {
   createCanvas(650, 650);
   background(102, 129, 124);
   fill(255);
-  
+  textFont(font);
   sensitivitySlider = createSlider(1000, 10000, 5000);
   sensitivitySlider.position(160, 590);
   sensitivitySlider.addClass('slider');
@@ -116,7 +147,7 @@ function draw() {
 
   /* ----------------- Enemy Spawn ----------------- */
   // compute time left based on when this run started (ignores paused time because runStartMillis is adjusted on resume)
-  // timer functionality is helped with github copilot 
+  // timer functionality is generated with github copilot
   if (runStartMillis > 0) {
     const elapsedSeconds = floor((millis() - runStartMillis) / 1000);
     timeLeft = Math.max(stopTime - elapsedSeconds, 0);
@@ -127,8 +158,13 @@ function draw() {
   if (!isPaused) {
     Timer++;
     if (Timer > spawnTime) {
-    let randomEnemy = random(enemyColor); 
-    enemies.push(new Enemy(randomEnemy));
+
+    // github copilot generated code to select enemy color and frames
+    const idx = floor(random(enemyAnimFrames.length));
+    const colorImgForLogic = enemyColor[idx];
+    const framesForDrawing = enemyAnimFrames[idx];
+
+    enemies.push(new Enemy(colorImgForLogic, framesForDrawing));
     Timer = 0;
 
     }
@@ -339,37 +375,73 @@ function hideSensitivitySlider(){
 class attackRing {
   constructor(size, x, y) {
     this.size = size;
+    this.targetSize = size;
+    this.sizeSmoothing = 0.25; //hi jiaye please change this to adjust how fast the size changes
     this.x = x;
     this.y = y;
+    this.prevX = x; 
+    this.prevY = y;
+    this.frames = playerFrames; 
+    this.animIndex = 0;
+    this.animTimer = 0;
+    this.animPeriod = 150;
   }
 
   show() {
-    this.size = vol * micSensitivity + attackSize;
+    this.targetSize = vol * micSensitivity + attackSize;
+    this.size = lerp(this.size, this.targetSize, this.sizeSmoothing);
+    if (this.size > 150) {
+      colorIndex = 2;
+    } else if (this.size > 80) {
+      colorIndex = 1;
+    } else {
+      colorIndex = 0;
+    }
 
-    //lerp colour 
-    if (this.size > 80)
-    { colorIndex = 1;
-    }
-    if (this.size > 150)
-    {
-    colorIndex = 2;
-    }
-    if (this.size <= 80)
-	{
-	colorIndex = 0;
-	} 
-   
-    fill(attackColor[colorIndex])
+    fill(attackColor[colorIndex]);
     noStroke();
     ellipse(this.x, this.y, this.size, this.size);
-    image(PlayerImg, this.x, this.y);    
-     
+
+    //animation 
+    const moved = dist(this.x, this.y, this.prevX, this.prevY) > 0.5;
+    if (moved) {
+      this.animTimer += deltaTime;
+      if (this.animTimer >= this.animPeriod) {
+        this.animTimer = 0;
+        this.animIndex = (this.animIndex + 1) % this.frames.length;
+      }
+    } else {
+      this.animIndex = 0;
+      this.animTimer = 0;
+    }
+
+  //sprite flipping based on movement direction code with the help of chatgpt
+   const imgToDraw = (this.frames && this.frames.length > 0)
+  ? this.frames[this.animIndex]
+  : null;
+
+    const movedRight = (this.x - this.prevX) > 0.5;
+
+    if (imgToDraw) {
+     push();
+      translate(this.x, this.y);
+      if (movedRight) scale(-1, 1); 
+      image(imgToDraw, 0, 0, 50, 50);  
+      pop();
+    }
+
+    this.prevX = this.x;
+    this.prevY = this.y;
   }
 }
 
 class Enemy {
-  constructor(img) {
+  constructor(img, frames) {
     this.img = img;
+    this.frames = frames;    
+    this.animIndex = 0;
+    this.animTimer = 0;
+    this.animPeriod = 160;
     this.size = 50;
 
     const angle = random(360);
@@ -389,7 +461,9 @@ class Enemy {
     this.hit = false;
     this.alreadyHit = false;
 
-     
+    this.prevX =  this.x;
+    this.prevY =  this.y;
+
   
   }
 
@@ -397,6 +471,9 @@ class Enemy {
   
 
   update(){
+    this.prevX = this.x;
+    this.prevY = this.y;
+
     if (this.hit){
       this.x -= this.xVelocity * this.speed * deltaTime / 10;
       this.y -= this.yVelocity * this.speed * deltaTime / 10;
@@ -409,11 +486,26 @@ class Enemy {
       this.x += this.xVelocity * this.speed * deltaTime/1000;
       this.y += this.yVelocity * this.speed * deltaTime/1000;
     }
+
+     this.animTimer += deltaTime;
+    if (this.animTimer >= this.animPeriod) {
+      this.animTimer = 0;
+      this.animIndex = (this.animIndex + 1) % this.frames.length;
+    }
   }
 
 
   show() {
-    image(this.img, this.x, this.y, this.size, this.size);
+  const imgToDraw = (this.frames && this.frames.length > 0) ? this.frames[this.animIndex] : this.img;
+  if (!imgToDraw) return;
+
+  const movingRight = (this.x - this.prevX) > 0.01;
+
+  push();
+  translate(this.x, this.y);
+  if (movingRight) scale(-1, 1);
+  image(imgToDraw, 0, 0, this.size, this.size);
+  pop();
   }
 
   reachedFon(killDistance = 10){
