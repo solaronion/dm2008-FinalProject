@@ -53,12 +53,16 @@ function preload(){
   BlueImg2   = loadImage("Assets/BlueEnemyImg2.png");
   YellowImg2 = loadImage("Assets/YellowEnemyImg2.png");
   RedImg2    = loadImage("Assets/RedEnemyImg2.png");
+  BackgroundImg = loadImage("Assets/Background.png");
+  TreeImg = loadImage("Assets/Trees.png");
+  StartImg = loadImage("Assets/Startscreen.png")
+
 
   PlayerImg.resize(50, 0);    
   PlayerImg2.resize(50, 0);
   FonImg.resize(50, 0);
   BlueImg.resize(50, 0);     
-   BlueImg2.resize(50, 0);
+  BlueImg2.resize(50, 0);
   YellowImg.resize(50, 0);    
   YellowImg2.resize(50, 0);
   RedImg.resize(50, 0);       
@@ -89,7 +93,7 @@ function setup() {
   fill(255);
   textFont(font);
   sensitivitySlider = createSlider(1000, 10000, 5000);
-  sensitivitySlider.position(160, 590);
+  sensitivitySlider.position(170, 590);
   sensitivitySlider.addClass('slider');
   sensitivitySlider.input(() =>micSensitivity = sensitivitySlider.value());
   sensitivitySlider.hide();
@@ -98,6 +102,9 @@ function setup() {
 
 function draw() {
   background(102, 129, 124);
+  imageMode(CENTER);
+
+  image(BackgroundImg, width/2, height/2, width, height);
   
 
   
@@ -144,6 +151,7 @@ function draw() {
 
   image(FonImg, width/2, height/2);
   ring.show();
+  
 
   /* ----------------- Enemy Spawn ----------------- */
   // compute time left based on when this run started (ignores paused time because runStartMillis is adjusted on resume)
@@ -175,6 +183,7 @@ function draw() {
 
     enemy.update();
     enemy.show();
+    
 
     let playerEnemyD = dist(enemy.x, enemy.y, ring.x, ring.y);
     let collide = playerEnemyD < (ring.size / 2 + enemy.size / 2);
@@ -199,6 +208,8 @@ function draw() {
     }  
   }
 
+  image(TreeImg, width/2, height/2, width, height);
+
 
   /* ----------------- Collision with Center Fon ----------------- */
   let d = dist(ring.x, ring.y, width/2, height/2);
@@ -222,22 +233,32 @@ function draw() {
 
 /* ----------------- Screens ----------------- */
 function StartScreen(){
-  fill(255);
+  image(StartImg, width/2, height/2, width, height);
+  fill("#c9b89ad2")
+  stroke ("#61533cd2")
+  strokeWeight(5);
   textAlign(CENTER, CENTER); 
-  textSize(48);
-  text("SPACE key to Start", width/2, height/2);
+
+  textSize(65);
+  text("HISS THE CATS AWAY", width/2 , height/2 - 160);
+
+  textSize(18);
+  text("Press Space to Start", width/2 - 20, height/2 - 90);
+
   textSize(20);
-  text("Hiss the cats away! WASD to move", width/2, height/2 + 50);
+  text("Move with:", width/2 - 210, height/2 + 140);
 
   showSensitivitySlider();
 
   
  
-  image(PlayerImg, width/2, height/3 + 50, 50, 50);  
+ 
 }
 
 function DeathScreen(){
-  fill(255);
+  fill("#c9b89ad2")
+  stroke ("#61533cd2")
+  strokeWeight(5);
   textAlign(CENTER, CENTER); 
   textSize(48);
   text("You Failed...", width/2, height/2);
@@ -251,7 +272,9 @@ function DeathScreen(){
 }
 
 function WinScreen(){
-  fill(255);
+  fill("#c9b89ad2")
+  stroke ("#61533cd2")
+  strokeWeight(5);
   textAlign(CENTER, CENTER); 
   textSize(48);
   text("Fon is impressed! :D", width/2, height/2);
@@ -266,7 +289,9 @@ function WinScreen(){
 }
 
 function FinishEatingScreen(){
-  fill(255);
+   ill("#c9b89ad2")
+  stroke ("#61533cd2")
+  strokeWeight(5);
   textAlign(CENTER, CENTER); 
   textSize(18);
   text("Fon finished eating in peace, and she accepted your confession! :D", width/2, height/2); 
@@ -278,7 +303,10 @@ function FinishEatingScreen(){
 
 
 function PauseScreen(){
-  noStroke();
+  fill("#c9b89ad2")
+  stroke ("#61533cd2")
+  strokeWeight(5);
+  image(TreeImg, width/2, height/2, width, height);
   fill(0, 150);
   rect(0, 0, width, height);
   fill(255);
@@ -344,7 +372,9 @@ function startNewRun() {
 }
 
 function score(){ 
-  fill(255); 
+  fill("#c9b89ad2")
+  stroke ("#61533cd2")
+  strokeWeight(5);
   textAlign(CENTER); 
   textSize(20); 
   text("Cats chased off: " + scoreCount, 100, 30);
@@ -354,14 +384,16 @@ function score(){
 
 
 function endScore(){
-  fill(255); 
+  fill("#c9b89ad2")
+  stroke ("#61533cd2")
+  strokeWeight(5);
   textAlign(CENTER); 
   textSize(20); 
   text("Cats chased off: " + scoreCount, width/2, height/2 + 150);
 }
 
 function showSensitivitySlider(){
-  textSize(12);
+  textSize(15);
   text("Microphone Sensitivity", 90, 600);
   sensitivitySlider.show();
 }
