@@ -21,12 +21,16 @@ let stopTime = 30;
 let timeLeft;
 
 
+
 let runStartMillis = 0;
 let pauseStartMillis = 0;
 
 let gameStarted = false;
 let gameOver = false;
 let isPaused = true;
+let showRules = false;
+let rulesBtn;
+let backBtn;
 
 let sensitivitySlider;
 let micSensitivity = 5000;
@@ -56,6 +60,8 @@ function preload(){
   BackgroundImg = loadImage("Assets/Background.png");
   TreeImg = loadImage("Assets/Trees.png");
   StartImg = loadImage("Assets/Startscreen.png")
+  PauseImg = loadImage("Assets/pause.png")
+  RulesImg = loadImage("Assets/rules.png")
 
 
   PlayerImg.resize(50, 0);    
@@ -93,11 +99,31 @@ function setup() {
   fill(255);
   textFont(font);
   sensitivitySlider = createSlider(1000, 10000, 5000);
-  sensitivitySlider.position(170, 590);
+  sensitivitySlider.position(350, 465);
   sensitivitySlider.addClass('slider');
+
   sensitivitySlider.input(() =>micSensitivity = sensitivitySlider.value());
   sensitivitySlider.hide();
  
+  rulesBtn = createButton("Rules");
+  rulesBtn.position(width/2 - 240, height/2 + 240);
+  rulesBtn.mousePressed(() => {
+  showRules = true;
+  });
+  rulesBtn.addClass('btn');
+  rulesBtn.hide();   
+
+
+  backBtn = createButton("Back");
+  backBtn.position(width/2 - 240, height/2 + 240); 
+  backBtn.mousePressed(() => {
+  showRules = false;
+  });
+  backBtn.addClass('btn');
+  backBtn.hide(); 
+
+  
+
 }
 
 function draw() {
@@ -108,10 +134,22 @@ function draw() {
   
 
   
-  if (!gameStarted) {
+  if (!gameStarted && !showRules) {
+    rulesBtn.show();  
+    backBtn.hide();  
+    hideSensitivitySlider();
     StartScreen();
     return;
   }
+
+  if (!gameStarted && showRules) {
+    rulesBtn.hide();   
+    backBtn.show();    
+    RulesScreen();
+    return;
+  }
+    rulesBtn.hide();
+    backBtn.hide();
   
   if (gameOver && scoreCount < winScore) {
     DeathScreen();
@@ -234,30 +272,39 @@ function draw() {
 /* ----------------- Screens ----------------- */
 function StartScreen(){
   image(StartImg, width/2, height/2, width, height);
-  fill("#c9b89ad2")
+  fill("#c4996c")
   stroke ("#61533cd2")
   strokeWeight(5);
   textAlign(CENTER, CENTER); 
+}
 
-  textSize(65);
-  text("HISS THE CATS AWAY", width/2 , height/2 - 160);
+  
+function RulesScreen(){
+image(StartImg, width/2, height/2, width, height);
 
-  textSize(18);
-  text("Press Space to Start", width/2 - 20, height/2 - 90);
+fill(0, 150);
+rect(0, 0, width, height);
 
-  textSize(20);
-  text("Move with:", width/2 - 210, height/2 + 140);
+image(RulesImg, width/2, height/2, width, height)
+sensitivitySlider.show();
 
-  showSensitivitySlider();
+fill(250)
+strokeWeight();
+textSize(15);
+text("Microphone Sensitivity", 260, 475);
 
+}
   
  
  
-}
+
 
 function DeathScreen(){
-  fill("#c9b89ad2")
+  fill(0, 150);
+  rect(0, 0, width, height);
+  fill("#c4996c")
   stroke ("#61533cd2")
+  
   strokeWeight(5);
   textAlign(CENTER, CENTER); 
   textSize(48);
@@ -266,13 +313,17 @@ function DeathScreen(){
   text("R to restart", width/2, height/2 + 50);
   endScore();
 
+  textSize(15);
+  text("Microphone Sensitivity", 260, 475);
   showSensitivitySlider();
  
   image(PlayerImg, width/2, height/3 + 50, 50, 50);  
 }
 
 function WinScreen(){
-  fill("#c9b89ad2")
+  fill(0, 150);
+  rect(0, 0, width, height);
+  fill("#c4996c")
   stroke ("#61533cd2")
   strokeWeight(5);
   textAlign(CENTER, CENTER); 
@@ -282,6 +333,8 @@ function WinScreen(){
   text("R to restart", width/2, height/2 + 50);
   endScore();
 
+  textSize(15);
+  text("Microphone Sensitivity", 260, 475);
   showSensitivitySlider();
 
   image(PlayerImg, width/2 -30, height/3 + 50, 50, 50); 
@@ -289,7 +342,9 @@ function WinScreen(){
 }
 
 function FinishEatingScreen(){
-   ill("#c9b89ad2")
+  fill(0, 150);
+  rect(0, 0, width, height);
+   fill("#c4996c")
   stroke ("#61533cd2")
   strokeWeight(5);
   textAlign(CENTER, CENTER); 
@@ -303,20 +358,24 @@ function FinishEatingScreen(){
 
 
 function PauseScreen(){
-  fill("#c9b89ad2")
+  fill("#c4996c")
   stroke ("#61533cd2")
   strokeWeight(5);
   image(TreeImg, width/2, height/2, width, height);
+
   fill(0, 150);
   rect(0, 0, width, height);
+  image(PauseImg, width/2, height/2, width, height)
   fill(255);
   textAlign(CENTER, CENTER); 
   textSize(48);
   text("Game Paused", width/2, height/2 - 20);
   textSize(20);
   text("Press ESC to Resume!", width/2, height/2 + 30);
-  textSize(12);
-  text("Microphone Sensitivity", 90, 600);
+  fill(250)
+  strokeWeight(1);
+  textSize(15);
+  text("Microphone Sensitivity", 260, 475);
 
 }
 
@@ -372,7 +431,7 @@ function startNewRun() {
 }
 
 function score(){ 
-  fill("#c9b89ad2")
+  fill("#c4996c")
   stroke ("#61533cd2")
   strokeWeight(5);
   textAlign(CENTER); 
@@ -381,20 +440,20 @@ function score(){
   text("Time left for Fon to finish eating: " + timeLeft , 440, 30)
 }
 
-
+ 
 
 function endScore(){
-  fill("#c9b89ad2")
+  fill("#c4996c")
   stroke ("#61533cd2")
   strokeWeight(5);
   textAlign(CENTER); 
   textSize(20); 
-  text("Cats chased off: " + scoreCount, width/2, height/2 + 150);
+  text("Cats chased off: " + scoreCount, width/2, height/2 + 80);
 }
 
 function showSensitivitySlider(){
   textSize(15);
-  text("Microphone Sensitivity", 90, 600);
+  text("Microphone Sensitivity", 260, 475);
   sensitivitySlider.show();
 }
 
@@ -560,4 +619,3 @@ class Enemy {
 }
 
 
-// add ui slider to adjust sensitivity (is at 5000 rn)
