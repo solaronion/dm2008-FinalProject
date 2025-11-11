@@ -42,6 +42,9 @@ let RedImg2;
 
 let playerFrames = [];
 let enemyFrames = [];
+let enemyMeows = [];
+let winPlayed = false;
+let losePlayed = false;
 
 /* ----------------- Assets ----------------- */
 
@@ -77,6 +80,16 @@ function preload(){
   //fonts
   font = loadFont("Assets/Fonts/Mabook.ttf");
 
+  //sound
+  BGM = loadSound("Assets/Sounds/GameBGM.mp3");
+  BGM.setVolume(0.5);
+  EnemyMeow1 = loadSound("Assets/Sounds/EnemyMeow1.wav");
+  EnemyMeow2 = loadSound("Assets/Sounds/EnemyMeow2.wav");
+  EnemyMeow3 = loadSound("Assets/Sounds/EnemyMeow3.wav"); 
+  WinSound = loadSound("Assets/Sounds/WinSound.mp3");
+  LoseSound = loadSound("Assets/Sounds/LoseSound.mp3");
+  ButtonPressSound = loadSound("Assets/Sounds/ButtonPress.mp3");
+
 
   enemyColor = [BlueImg, YellowImg, RedImg];
   playerFrames = [PlayerImg, PlayerImg2];
@@ -85,6 +98,7 @@ function preload(){
     [YellowImg, YellowImg2],
     [RedImg,    RedImg2]
     ];
+  enemyMeows = [EnemyMeow1, EnemyMeow2, EnemyMeow3];
 }
 
 /* ----------------- Sound ----------------- */
@@ -108,6 +122,7 @@ function setup() {
   rulesBtn = createButton("Rules");
   rulesBtn.position(width/2 - 240, height/2 + 240);
   rulesBtn.mousePressed(() => {
+  ButtonPressSound.play();
   showRules = true;
   });
   rulesBtn.addClass('btn');
@@ -117,14 +132,16 @@ function setup() {
   backBtn = createButton("Back");
   backBtn.position(width/2 - 240, height/2 + 240); 
   backBtn.mousePressed(() => {
+  ButtonPressSound.play();
   showRules = false;
   });
   backBtn.addClass('btn');
   backBtn.hide(); 
 
-  
+   
 
 }
+
 
 function draw() {
   background(102, 129, 124);
@@ -153,17 +170,20 @@ function draw() {
   
   if (gameOver && scoreCount < winScore) {
     DeathScreen();
+    playGameOverSound();
     return;
   }
 
   if (gameOver && scoreCount >= winScore && timeLeft > 0) {
     WinScreen();
+    playGameOverSound();
     return;
   }  
 
   if (timeLeft <= 0) {
     gameOver = true;
     FinishEatingScreen();
+    playGameOverSound();
     return;
   }
 
@@ -300,6 +320,7 @@ text("Microphone Sensitivity", 260, 475);
 
 
 function DeathScreen(){
+  BGM.stop();
   fill(0, 150);
   rect(0, 0, width, height);
   fill("#c4996c")
@@ -321,6 +342,7 @@ function DeathScreen(){
 }
 
 function WinScreen(){
+  BGM.stop();
   fill(0, 150);
   rect(0, 0, width, height);
   fill("#c4996c")
@@ -342,6 +364,7 @@ function WinScreen(){
 }
 
 function FinishEatingScreen(){
+  BGM.stop();
   fill(0, 150);
   rect(0, 0, width, height);
    fill("#c4996c")
@@ -386,11 +409,13 @@ function keyPressed() {
     if (!isPaused) {
       // going to pause
       isPaused = true;
+      ButtonPressSound.play();
       pauseStartMillis = millis();
       showSensitivitySlider();
     } else {
       // resuming
       isPaused = false;
+      ButtonPressSound.play();
       if (pauseStartMillis) {
         // shift runStartMillis forward by the paused duration so elapsed time excludes pause
         runStartMillis += (millis() - pauseStartMillis);
@@ -402,22 +427,31 @@ function keyPressed() {
   }
   if (!gameStarted && keyCode === 32) {
     startNewRun();
+    ButtonPressSound.play();
     return;
   }
 
   if (gameOver && (key === 'r' || key === 'R')) {
     startNewRun();
+    ButtonPressSound.play();
     return;
   }
 }
 
 function startNewRun() {
   if (mic && mic.stop) mic.stop();
+  BGM.loop();
   isPaused = false;
   runStartMillis = millis();
   pauseStartMillis = 0;
   timeLeft = stopTime;
   gameOver = false;
+  // reset sound-played flags so win/lose sounds can play on next game over
+  winPlayed = false;
+  losePlayed = false;
+  // stop any one-shot sounds that might still be playing
+  try { if (WinSound && WinSound.isPlaying && WinSound.isPlaying()) WinSound.stop(); } catch (e) {}
+  try { if (LoseSound && LoseSound.isPlaying && LoseSound.isPlaying()) LoseSound.stop(); } catch (e) {}
   gameStarted = true;
   enemies = [];     
   Timer = 0;       
@@ -428,6 +462,9 @@ function startNewRun() {
   ring = new attackRing(attackSize, width/2, height/2 - 150);
   mic = new p5.AudioIn();
   mic.start();
+
+  winPlayed = false;
+  losePlayed = false;
 }
 
 function score(){ 
@@ -461,7 +498,20 @@ function hideSensitivitySlider(){
   sensitivitySlider.hide();
 } 
 
-
+function playGameOverSound() {
+  if (!gameOver) return;
+  if (scoreCount >= winScore) {
+    if (!winPlayed && WinSound) {
+      WinSound.play(); 
+      winPlayed = true;
+    }
+  } else {
+    if (!losePlayed && LoseSound) {
+      LoseSound.play();
+      losePlayed = true;
+    }
+  }
+}
 /* ----------------- Classes ----------------- */
 class attackRing {
   constructor(size, x, y) {
@@ -570,7 +620,13 @@ class Enemy {
       this.y -= this.yVelocity * this.speed * deltaTime / 10;
       if (!this.alreadyHit){
       scoreCount += 1;
+      if (enemyMeows && enemyMeows.length > 0) {
+        const randomIndex = floor(random(enemyMeows.length));
+        const meowSound = enemyMeows[randomIndex];
+        meowSound.setVolume(0.8);
+        meowSound.play();
       }
+    }
       this.alreadyHit = true;
     }
     else{
