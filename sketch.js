@@ -156,10 +156,10 @@ function draw() {
     return;
   }
 
-  if (gameOver && scoreCount >= winScore) {
+  if (gameOver && scoreCount >= winScore && timeLeft > 0) {
     WinScreen();
     return;
-  }
+  }  
 
   if (timeLeft <= 0) {
     gameOver = true;
