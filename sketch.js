@@ -29,6 +29,7 @@ let gameStarted = false;
 let gameOver = false;
 let isPaused = true;
 let showRules = false;
+let ruleScreen = false;
 let rulesBtn;
 let backBtn;
 
@@ -116,6 +117,13 @@ function setup() {
   background(102, 129, 124);
   fill(255);
   textFont(font);
+
+  startBtn = createButton("Start");
+  startBtn.position(width / 2 + 140, height / 2 + 240);
+  startBtn.mousePressed(startNewRun);
+  startBtn.addClass('btn');
+  startBtn.hide();
+
   sensitivitySlider = createSlider(1000, 10000, 5000);
   sensitivitySlider.position(350, 465);
   sensitivitySlider.addClass('slider');
@@ -157,7 +165,8 @@ function draw() {
   
   if (!gameStarted && !showRules) {
     rulesBtn.show();  
-    backBtn.hide();  
+    backBtn.hide(); 
+    startBtn.hide(); 
     hideSensitivitySlider();
     StartScreen();
     return;
@@ -167,10 +176,12 @@ function draw() {
     rulesBtn.hide();   
     backBtn.show();    
     RulesScreen();
+    
     return;
   }
     rulesBtn.hide();
     backBtn.hide();
+    
   
   if (gameOver && scoreCount < winScore) {
     DeathScreen();
@@ -258,7 +269,7 @@ function draw() {
 
     if (enemy.hit && enemy.offScreen()){
       enemies.splice(i, 1);
-      continue; // skip rest of this loop
+      continue; 
     }  
       
     if (enemies[i].reachedFon(25)) { 
@@ -279,6 +290,7 @@ function draw() {
     gameOver = true;
   }
 
+  
   score();
 } else {
     for (let i = 0; i < enemies.length; i++) {
@@ -300,6 +312,9 @@ function StartScreen(){
   stroke ("#61533cd2")
   strokeWeight(5);
   textAlign(CENTER, CENTER); 
+
+  startBtn.show();
+  rulesBtn.show();
 }
 
   
@@ -319,21 +334,23 @@ text("Microphone Sensitivity", 260, 475);
 
 }
   
- 
- 
+
 
 
 function DeathScreen(){
   BGM.stop();
+
   fill(0, 150);
   rect(0, 0, width, height);
-  fill("#c4996c")
-  stroke ("#61533cd2")
-  
   strokeWeight(5);
+  fill("#61533cd2");
+  stroke ("#c4996c");
+
+  image(PauseImg, width/2, height/2, width, height)
+
   textAlign(CENTER, CENTER); 
   textSize(48);
-  text("You Failed...", width/2, height/2);
+  text("You Failed...", width/2 , height/2 - 30);
   textSize(20);
   text("R to restart", width/2, height/2 + 50);
   endScore();
@@ -342,19 +359,20 @@ function DeathScreen(){
   text("Microphone Sensitivity", 260, 475);
   showSensitivitySlider();
  
-  image(PlayerImg, width/2, height/3 + 50, 50, 50);  
+  image(PlayerImg, width/2, height/3 + 20, 50, 50);  
 }
 
 function WinScreen(){
   BGM.stop();
   fill(0, 150);
   rect(0, 0, width, height);
-  fill("#c4996c")
-  stroke ("#61533cd2")
+  fill("#61533cd2");
+  stroke ("#c4996c");
+  image(PauseImg, width/2, height/2, width, height);
   strokeWeight(5);
   textAlign(CENTER, CENTER); 
   textSize(48);
-  text("Fon is impressed! :D", width/2, height/2);
+  text("Fon is impressed! :D", width/2, height/2 - 30);
   textSize(20);
   text("R to restart", width/2, height/2 + 50);
   endScore();
@@ -395,14 +413,14 @@ function PauseScreen(){
   fill(0, 150);
   rect(0, 0, width, height);
   image(PauseImg, width/2, height/2, width, height)
-  fill(255);
+
   textAlign(CENTER, CENTER); 
   textSize(48);
   text("Game Paused", width/2, height/2 - 20);
   textSize(20);
   text("Press ESC to Resume!", width/2, height/2 + 30);
-  fill(250)
-  strokeWeight(1);
+
+
   textSize(15);
   text("Microphone Sensitivity", 260, 475);
 
@@ -445,6 +463,12 @@ function keyPressed() {
 }
 
 function startNewRun() {
+
+  startBtn.hide();
+  rulesBtn.hide();
+  backBtn.hide();
+  hideSensitivitySlider();
+
   if (mic && mic.stop) mic.stop();
   
   isPaused = false;
@@ -485,17 +509,18 @@ function score(){
   textSize(18); 
   text("Cats chased off ", 90, 25);
   text("Time left for Fon to finish eating" , 415, 33)
+  text("ESC to pause the game", width/2 , height/2 + 300)
   textSize(22);
   text(scoreCount, 90, 60);
   text(timeLeft, 610, 33);
   
 }
 
- 
+
 
 function endScore(){
-  fill("#c4996c")
-  stroke ("#61533cd2")
+  fill("#61533cd2")
+  stroke ("#c4996c")
   strokeWeight(5);
   textAlign(CENTER); 
   textSize(20); 
