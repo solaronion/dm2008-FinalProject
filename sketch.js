@@ -65,6 +65,10 @@ function preload(){
   StartImg = loadImage("Assets/Startscreen.png")
   PauseImg = loadImage("Assets/pause.png")
   RulesImg = loadImage("Assets/rules.png")
+  ScoreboardImg = loadImage("Assets/scoreboard.png")
+  TimerboardImg = loadImage("Assets/timerboard.png")
+
+
 
 
   PlayerImg.resize(50, 0);    
@@ -360,7 +364,7 @@ function WinScreen(){
   showSensitivitySlider();
 
   image(PlayerImg, width/2 -30, height/3 + 50, 50, 50); 
-  image(FonImg, width/2 + 30, height/3 + 50, 50);  
+  image(FonImg, width/2 + 30, height/3 + 50, );  
 }
 
 function FinishEatingScreen(){
@@ -373,9 +377,11 @@ function FinishEatingScreen(){
   textAlign(CENTER, CENTER); 
   textSize(18);
   text("Fon finished eating in peace, and she accepted your confession! :D", width/2, height/2); 
+  textSize(20);
+  text("R to restart", width/2, height/2 + 50);
   endScore();
   image(PlayerImg, width/2 -30, height/3 + 50, 50, 50); 
-  image(FonImg, width/2 + 30, height/3 + 50, 50); 
+  image(FonImg, width/2 + 30, height/3 + 50, ); 
 }
 
 
@@ -440,7 +446,7 @@ function keyPressed() {
 
 function startNewRun() {
   if (mic && mic.stop) mic.stop();
-  BGM.loop();
+  
   isPaused = false;
   runStartMillis = millis();
   pauseStartMillis = 0;
@@ -462,19 +468,27 @@ function startNewRun() {
   ring = new attackRing(attackSize, width/2, height/2 - 150);
   mic = new p5.AudioIn();
   mic.start();
-
+  BGM.loop();
   winPlayed = false;
   losePlayed = false;
 }
 
 function score(){ 
+  image(ScoreboardImg, 90, 46); 
+  image(TimerboardImg, 450, 33); 
+
+
   fill("#c4996c")
   stroke ("#61533cd2")
   strokeWeight(5);
   textAlign(CENTER); 
-  textSize(20); 
-  text("Cats chased off: " + scoreCount, 100, 30);
-  text("Time left for Fon to finish eating: " + timeLeft , 440, 30)
+  textSize(18); 
+  text("Cats chased off ", 90, 25);
+  text("Time left for Fon to finish eating" , 415, 33)
+  textSize(22);
+  text(scoreCount, 90, 60);
+  text(timeLeft, 610, 33);
+  
 }
 
  
