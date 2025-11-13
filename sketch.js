@@ -47,6 +47,11 @@ let enemyMeows = [];
 let winPlayed = false;
 let losePlayed = false;
 
+// the mic was maxing out for a split second whenever the microphone is initialized, leading to an instant game over. all code related to smoothedvol and micmillis are chatgpt'd :0
+let smoothedVol = 0;       
+let micStartMillis = 0;    
+let micWarmupMillis = 1000;
+
 /* ----------------- Assets ----------------- */
 
 
@@ -205,7 +210,17 @@ function draw() {
 
 
   if (!isPaused) {
-  vol = mic.getLevel();
+    // this section is debugged with chatgpt to prevent mic maxing out at start
+   if (mic) {
+    let rawVol = mic.getLevel();
+    if (millis() - micStartMillis < micWarmupMillis) {
+      rawVol = 0;
+    }
+    smoothedVol = lerp(smoothedVol, rawVol, 0.1); 
+    const maxUsefulVol = 0.2; 
+    vol = constrain(smoothedVol, 0, maxUsefulVol);
+    //
+  }
   if (keyIsDown(68)) { 
     ring.x += 4;
   }
@@ -492,6 +507,12 @@ function startNewRun() {
   ring = new attackRing(attackSize, width/2, height/2 - 150);
   mic = new p5.AudioIn();
   mic.start();
+  // this section is debugged with chatgpt to prevent mic maxing out at start
+  micStartMillis = millis();
+  smoothedVol = 0;
+  vol = 0;
+  //
+
   BGM.loop();
   winPlayed = false;
   losePlayed = false;
