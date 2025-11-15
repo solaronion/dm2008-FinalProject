@@ -387,7 +387,7 @@ function WinScreen(){
   strokeWeight(5);
   textAlign(CENTER, CENTER); 
   textSize(48);
-  text("Fon is impressed! :D", width/2, height/2 - 30);
+  text("Fon is impressed! :D", width/2, height/2);
   textSize(20);
   text("R to restart", width/2, height/2 + 50);
   endScore();
