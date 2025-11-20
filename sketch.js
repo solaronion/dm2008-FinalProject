@@ -44,6 +44,7 @@ let RedImg2;
 let playerFrames = [];
 let enemyFrames = [];
 let enemyMeows = [];
+let gameContainer;
 let winPlayed = false;
 let losePlayed = false;
 
@@ -117,43 +118,63 @@ function preload(){
 /* ----------------- Setup & Draw ----------------- */
 function setup() {
   imageMode(CENTER);
-  textAlign(CENTER, CENTER); 
-  createCanvas(650, 650);
+  textAlign(CENTER, CENTER);
+  // create canvas and a container div that will hold the canvas and UI
+  let cnv = createCanvas(650, 650);
+  // container keeps UI positioned relative to the canvas regardless of page layout
+  gameContainer = createDiv();
+  gameContainer.id('gameContainer');
+  gameContainer.style('position', 'relative');
+  gameContainer.style('width', `${width}px`);
+  gameContainer.style('height', `${height}px`);
+  gameContainer.style('margin', '0 auto');
+  // move canvas into the container
+  cnv.parent(gameContainer);
   background(102, 129, 124);
   fill(255);
   textFont(font);
 
   startBtn = createButton("Start");
+  startBtn.parent(gameContainer);
+  startBtn.style('position', 'absolute');
   startBtn.position(width / 2 + 140, height / 2 + 240);
   startBtn.mousePressed(startNewRun);
   startBtn.addClass('btn');
   startBtn.hide();
 
   sensitivitySlider = createSlider(1000, 10000, 5000);
-  sensitivitySlider.position(350, 465);
+  sensitivitySlider.parent(gameContainer);
+  sensitivitySlider.style('position', 'absolute');
+  sensitivitySlider.style('left', `${350}px`);
+  sensitivitySlider.style('top', `${468}px`);
   sensitivitySlider.addClass('slider');
-
-  sensitivitySlider.input(() =>micSensitivity = sensitivitySlider.value());
+  sensitivitySlider.input(() => micSensitivity = sensitivitySlider.value());
   sensitivitySlider.hide();
  
   rulesBtn = createButton("Rules");
-  rulesBtn.position(width/2 - 240, height/2 + 240);
+  rulesBtn.parent(gameContainer);
+  rulesBtn.style('position', 'absolute');
+  rulesBtn.style('left', `${width/2 - 240}px`);
+  rulesBtn.style('top', `${height/2 + 240}px`);
   rulesBtn.mousePressed(() => {
-  ButtonPressSound.play();
-  showRules = true;
+    ButtonPressSound.play();
+    showRules = true;
   });
   rulesBtn.addClass('btn');
-  rulesBtn.hide();   
+  rulesBtn.hide();
 
 
   backBtn = createButton("Back");
-  backBtn.position(width/2 - 240, height/2 + 240); 
+  backBtn.parent(gameContainer);
+  backBtn.style('position', 'absolute');
+  backBtn.style('left', `${width/2 - 240}px`);
+  backBtn.style('top', `${height/2 + 240}px`);
   backBtn.mousePressed(() => {
-  ButtonPressSound.play();
-  showRules = false;
+    ButtonPressSound.play();
+    showRules = false;
   });
   backBtn.addClass('btn');
-  backBtn.hide(); 
+  backBtn.hide();
 
    
 
