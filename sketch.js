@@ -14,11 +14,11 @@ let spawnTime = 120;
 let enemyColor = [];
 let Timer = 0
 let scoreCount = 0;
-let winScore = 5;
+let winScore = 20;
 
-var seconds = 0;
-let stopTime = 30;
-let timeLeft;
+//var seconds = 0;
+///let stopTime = 30;
+///let timeLeft;
 
 
 
@@ -215,18 +215,18 @@ function draw() {
     return;
   }
 
-  if (gameOver && scoreCount >= winScore && timeLeft > 0) {
-    WinScreen();
-    playGameOverSound();
-    return;
-  }  
+  // if (gameOver && scoreCount >= winScore && timeLeft > 0) {
+  //   WinScreen();
+  //   playGameOverSound();
+  //   return;
+  // }  
 
-  if (timeLeft <= 0) {
-    gameOver = true;
-    FinishEatingScreen();
-    playGameOverSound();
-    return;
-  }
+  // if (timeLeft <= 0) {
+  //   gameOver = true;
+  //   FinishEatingScreen();
+  //   playGameOverSound();
+  //   return;
+  // }
 
 
 
@@ -242,6 +242,7 @@ function draw() {
     vol = constrain(smoothedVol, 0, maxUsefulVol);
     //
   }
+  
   if (keyIsDown(68)) { 
     ring.x += 4;
   }
@@ -265,16 +266,21 @@ function draw() {
   /* ----------------- Enemy Spawn ----------------- */
   // compute time left based on when this run started (ignores paused time because runStartMillis is adjusted on resume)
   // timer functionality is generated with github copilot
-  if (runStartMillis > 0) {
-    const elapsedSeconds = floor((millis() - runStartMillis) / 1000);
-    timeLeft = Math.max(stopTime - elapsedSeconds, 0);
-  } else {
-    timeLeft = stopTime;
-  }
+  // if (runStartMillis > 0) {
+  //   const elapsedSeconds = floor((millis() - runStartMillis) / 1000);
+  //   timeLeft = Math.max(stopTime - elapsedSeconds, 0);
+  // } else {
+  //   timeLeft = stopTime;
+  // }
 
   if (!isPaused) {
     Timer++;
-    if (Timer > spawnTime) {
+    // github copilot generated code to calculate the difficulty with time passing
+    let elapsedSeconds = floor((millis() - runStartMillis) / 1000);
+    let difficultyFactor = 1 + (elapsedSeconds - 10) * 0.05;
+    let SpawnTime = max(30, spawnTime / difficultyFactor);
+    
+    if (Timer > SpawnTime) {
 
     // github copilot generated code to select enemy color and frames
     const idx = floor(random(enemyAnimFrames.length));
@@ -441,8 +447,7 @@ function FinishEatingScreen(){
 
 
 function PauseScreen(){
-  fill("#c4996c")
-  stroke ("#61533cd2")
+
   strokeWeight(5);
   image(TreeImg, width/2, height/2, width, height);
 
@@ -451,6 +456,8 @@ function PauseScreen(){
   image(PauseImg, width/2, height/2, width, height)
 
   textAlign(CENTER, CENTER); 
+  fill("#c4996c")
+  stroke ("#61533cd2")
   textSize(48);
   text("Game Paused", width/2, height/2 - 20);
   textSize(20);
@@ -510,7 +517,7 @@ function startNewRun() {
   isPaused = false;
   runStartMillis = millis();
   pauseStartMillis = 0;
-  timeLeft = stopTime;
+  // timeLeft = stopTime;
   gameOver = false;
   // reset sound-played flags so win/lose sounds can play on next game over
   winPlayed = false;
@@ -550,11 +557,11 @@ function score(){
   textAlign(CENTER); 
   textSize(18); 
   text("Cats chased off ", 90, 25);
-  text("Time left for Fon to finish eating" , 415, 33)
-  text("ESC to pause the game", width/2 , height/2 + 300)
+  // text("Time left for Fon to finish eating" , 415, 33)
+  text("ESC to pause the game" , 425, 33)
   textSize(22);
   text(scoreCount, 90, 60);
-  text(timeLeft, 610, 33);
+  // text(timeLeft, 610, 33);
   
 }
 

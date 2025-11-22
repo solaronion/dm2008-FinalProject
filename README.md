@@ -2,7 +2,7 @@
 
 Our submission for DM2008 Programming for Interaction Final Project.
 
-By Colleen Chia Siyu (U2330412G) and Lu Jiaye (U233...)
+By Colleen Chia Siyu (U2330412G) and Lu JiaYe (U2330788G)
 
 Sounds and sources:
 
