@@ -73,7 +73,6 @@ function preload(){
   PauseImg = loadImage("Assets/pause.png")
   RulesImg = loadImage("Assets/rules.png")
   ScoreboardImg = loadImage("Assets/scoreboard.png")
-  TimerboardImg = loadImage("Assets/timerboard.png")
 
 
 
@@ -548,7 +547,6 @@ function startNewRun() {
 
 function score(){ 
   image(ScoreboardImg, 90, 46); 
-  image(TimerboardImg, 450, 33); 
 
 
   fill("#c4996c")
@@ -558,7 +556,7 @@ function score(){
   textSize(18); 
   text("Cats chased off ", 90, 25);
   // text("Time left for Fon to finish eating" , 415, 33)
-  text("ESC to pause the game" , 425, 33)
+  text("ESC to pause" , 590, 20)
   textSize(22);
   text(scoreCount, 90, 60);
   // text(timeLeft, 610, 33);
